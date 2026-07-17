@@ -96,33 +96,34 @@ Vortex Store is a comprehensive full-stack e-commerce ecosystem designed for mod
 
 ### 🏬 Merchant Operational Workspace (Seller Area)
 
-#### 18. Product Publishing Dashboard
+#### 18. Merchant Account Access Portal
+*This one is Seller login area for validated store profiles.*
+![Merchant Account Access Portal](./frontend/screenshots/Screenshot%202026-07-17%20235708.png)
+
+#### 19. Product Publishing Dashboard
 *Now this one is Seller area where seller uploads product he wants to sell.*
 ![Product Publishing Dashboard](./frontend/screenshots/Screenshot%202026-07-18%20001224.png)
 
-#### 19. Inventory Management & Status Ledger
+#### 20. Inventory Management & Status Ledger
 *Seller listed product is shown here. Seller can edit, remove, and check status (Block or freeze, not by admin).*
 ![Inventory Management & Status Ledger](./frontend/screenshots/Screenshot%202026-07-18%20001340.png)
 
-#### 20. End-User Complaint Tracker
+#### 21. End-User Complaint Tracker
 *Here seller sees complaints coming directly from Clients.*
 ![End-User Complaint Tracker](./frontend/screenshots/Screenshot%202026-07-18%20001526.png)
 
-#### 21. Real-Time Customer Chat Interface
+#### 22. Real-Time Customer Chat Interface
 *Here Seller can directly chat with specific user to tell details about product, ensure policy, return policy, etc.*
 ![Real-Time Customer Chat Interface](./frontend/screenshots/Screenshot%202026-07-18%20001701.png)
 
-#### 22. System Notifications Ledger
+#### 23. System Notifications Ledger
 *Here seller can see Complaints, Messages, and updates generated for him from the admin panel.*
 ![System Notifications Ledger](./frontend/screenshots/Screenshot%202026-07-18%20001759.png)
 
-#### 23. Profile Configuration Center
+#### 24. Profile Configuration Center
 *Here Seller can update their profile picture, Name, everything, and password, except their primary email.*
 ![Profile Configuration Center](./frontend/screenshots/Screenshot%202026-07-18%20001913.png)
 
-#### 24. Merchant Account Access Portal
-*This one is Seller login area for validated store profiles.*
-![Merchant Account Access Portal](./frontend/screenshots/Screenshot%202026-07-17%20235708.png)
 
 ---
 
