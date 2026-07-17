@@ -6,7 +6,7 @@ Vortex Store is a comprehensive full-stack e-commerce ecosystem designed for mod
 
 ## 📸 System Walkthrough & Application Interfaces
 
-### 🌐 Consumer Web Portal
+### 🌐 Consumer Web Portal (Home Page)
 
 #### 1. Main Homepage (Hero Showcase)
 *The introductory interface introducing user onboarding metrics, live promotion banners, and high-level platform value statements.*
@@ -22,7 +22,7 @@ Vortex Store is a comprehensive full-stack e-commerce ecosystem designed for mod
 
 ---
 
-### 🔍 Interactive Product Configuration (Product View)
+### 🔍 Interactive Product Configuration (Product View Page)
 
 #### 4. Extended Product Details (Spec View)
 *An immersive configuration interface presenting variable pricing metrics, deep-dive description builders, and real-time merchant metrics.*
