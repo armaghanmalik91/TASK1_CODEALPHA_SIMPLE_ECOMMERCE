@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Marketplace | Become a Seller</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0b0f19; --card: #151b2c; --accent: #3b82f6; --success: #10b981;
+            --text: #f8fafc; --text-muted: #64748b; --border: #242f47;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg);
+            color: var(--text); margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh;
+        }
+        .form-card {
+            background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+            padding: 40px; width: 100%; max-width: 550px; box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+        }
+        .logo { text-align: center; font-size: 26px; font-weight: 800; margin-bottom: 10px; }
+        .logo span { color: var(--accent); }
+        .subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 30px; }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .group { margin-bottom: 20px; }
+        .group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; }
+        .group input, .group textarea {
+            width: 100%; padding: 12px; box-sizing: border-box; background: var(--bg);
+            border: 1px solid var(--border); border-radius: 8px; color: var(--text); font-size: 14px; transition: 0.3s;
+        }
+        .group input:focus, .group textarea:focus { outline: none; border-color: var(--accent); }
+        .upload-box {
+            border: 2px dashed var(--border); padding: 20px; border-radius: 8px; background: rgba(0,0,0,0.2);
+            text-align: center; margin-bottom: 25px;
+        }
+        .upload-box label { color: #f59e0b; cursor: pointer; font-weight: bold; font-size: 13px; }
+        .btn {
+            width: 100%; padding: 14px; background: var(--accent); color: white; border: none;
+            border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 15px;
+        }
+        .btn:hover { background: #2563eb; }
+        .links { text-align: center; margin-top: 20px; font-size: 13px; color: var(--text-muted); }
+        .links a { color: var(--accent); text-decoration: none; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+    <div class="form-card">
+        <div class="logo"><i class="fa-solid fa-rocket"></i> Vortex <span>Merchant</span></div>
+        <div class="subtitle">Create your professional brand terminal account</div>
+        
+        <form id="sellerSignupForm" onsubmit="handleSellerSignup(event)">
+            <div class="grid">
+                <div class="group">
+                    <label>BRAND / COMPANY NAME</label>
+                    <input type="text" id="regBrandName" placeholder="e.g. Apex Labs" required>
+                </div>
+                <div class="group">
+                    <label>OWNER FULL NAME</label>
+                    <input type="text" id="regOwnerName" placeholder="John Doe" required>
+                </div>
+            </div>
+            <div class="grid">
+                <div class="group">
+                    <label>EMAIL ADDRESS</label>
+                    <input type="email" id="regEmail" placeholder="seller@brand.com" required>
+                </div>
+                <div class="group">
+                    <label>CONTACT NUMBER</label>
+                    <input type="text" id="regPhone" placeholder="+923000000000" required>
+                </div>
+            </div>
+            <div class="group">
+                <label>PASSWORD</label>
+                <input type="password" id="regPassword" placeholder="••••••••••••" required>
+            </div>
+            <div class="group">
+                <label>BUSINESS DESCRIPTION</label>
+                <textarea id="regDesc" rows="2" placeholder="Tell us briefly about your catalog..." required></textarea>
+            </div>
+            
+            <div class="upload-box">
+                <label for="regScreenshot"><i class="fa-solid fa-cloud-arrow-up"></i> Attach Payment Screenshot (Bank/EasyPaisa)</label>
+                <input type="file" id="regScreenshot" accept="image/*" required style="display: none;" onchange="showFileName(this)">
+                <div id="file-name" style="font-size: 12px; color: var(--success); margin-top: 5px;"></div>
+            </div>
+
+            <button type="submit" class="btn">Submit Merchant Application</button>
+        </form>
+
+        <div class="links">
+            Already registered? <a href="seller-dashboard.html">Login Workspace</a>
+        </div>
+    </div>
+
+    <script>
+        function showFileName(input) {
+            document.getElementById('file-name').innerText = "Selected: " + input.files[0].name;
+        }
+
+        function handleSellerSignup(e) {
+            e.preventDefault();
+            let localUsers = JSON.parse(localStorage.getItem("usersDatabase")) || [];
+            const email = document.getElementById("regEmail").value.trim();
+
+            if (localUsers.some(u => u.email === email && u.status !== 'removed')) {
+                alert("❌ Account with this email already exists!");
+                return;
+            }
+
+            const file = document.getElementById("regScreenshot").files[0];
+            const reader = new FileReader();
+            
+            reader.onloadend = function () {
+                localUsers.push({
+                    email,
+                    password: document.getElementById("regPassword").value.trim(),
+                    role: 'owner',
+                    brandName: document.getElementById("regBrandName").value.trim(),
+                    ownerName: document.getElementById("regOwnerName").value.trim(),
+                    phone: document.getElementById("regPhone").value.trim(),
+                    desc: document.getElementById("regDesc").value.trim(),
+                    screenshot: reader.result,
+                    status: 'pending'
+                });
+                localStorage.setItem("usersDatabase", JSON.stringify(localUsers));
+                alert("📩 Application Submitted!\nAdmin will activate your workspace shortly.");
+                window.location.href = "seller-dashboard.html";
+            }
+            if (file) reader.readAsDataURL(file);
+        }
+    </script>
+</body>
+</html>

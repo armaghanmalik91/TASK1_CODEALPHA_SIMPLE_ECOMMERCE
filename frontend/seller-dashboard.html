@@ -1,0 +1,1469 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Vortex Merchant Panel</title> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"> 
+    <!-- Croppie Library for client-side cropping and resizing -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.css">
+    <style> 
+        :root { 
+            --bg-main: #f8fafc;        /* Soft White */ 
+            --bg-sidebar: #0f172a;     /* Deep Navy Blue */ 
+            --bg-card: #ffffff;        /* Crisp White */ 
+            --text-dark: #0f172a;      /* Near Black */ 
+            --text-light: #ffffff;     /* White text for dark backgrounds */ 
+            --text-muted: #64748b;     /* Slate Gray */ 
+            --border-color: #e2e8f0;   /* Light Slate Border */ 
+            --accent-blue: #1e3a8a;    /* Classic Dark Navy */ 
+            --accent-primary: #3b82f6; /* Modern Blue */ 
+            --accent-success: #10b981; /* Premium Green */ 
+            --accent-danger: #ef4444;  /* Crimson Red */ 
+            --accent-warning: #f59e0b; /* Amber */ 
+        } 
+        * { box-sizing: border-box; margin: 0; padding: 0; } 
+        
+        /* PAGE SCROLLBAR INVISIBLE EFFECT */
+        html, body {
+            scrollbar-width: none; /* Firefox */
+            -ms-overflow-style: none; /* IE and Edge */
+        }
+        html::-webkit-scrollbar, body::-webkit-scrollbar {
+            display: none; /* Chrome, Safari, and Opera */
+        }
+
+        body { 
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--text-dark); 
+            height: 100vh; 
+            display: flex; 
+            overflow: hidden; 
+        } 
+        /* --- AUTH SECTION --- */ 
+        #loginBox { 
+            margin: auto; 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            padding: 40px; 
+            width: 100%; 
+            max-width: 420px; 
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08); 
+        } 
+        .login-logo { 
+            text-align: center; 
+            font-size: 28px; 
+            font-weight: 800; 
+            color: var(--bg-sidebar); 
+            margin-bottom: 25px; 
+            letter-spacing: -0.5px; 
+        } 
+        .login-logo span { color: var(--accent-primary); } 
+        .group { margin-bottom: 20px; } 
+        .group label { 
+            display: block; 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+        } 
+        .group input, .group select, .group textarea { 
+            width: 100%; 
+            padding: 12px; 
+            background: #f1f5f9; 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            color: var(--text-dark); 
+            font-size: 14px; 
+            transition: 0.3s; 
+        } 
+        .group input:focus, .group select:focus, .group textarea:focus { 
+            outline: none; 
+            border-color: var(--accent-primary); 
+            background: #fff; 
+        } 
+        .btn-auth { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--bg-sidebar); 
+            color: var(--text-light); 
+            border: none; 
+            border-radius: 8px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            font-size: 14px; 
+        } 
+        .btn-auth:hover { background: #1e293b; } 
+        
+        /* --- MAIN DASHBOARD LAYOUT --- */ 
+        #dashboardBox { 
+            display: none; 
+            width: 100%; 
+            height: 100vh; 
+            grid-template-columns: 260px 1fr; 
+        } 
+        /* LEFT SIDEBAR PANEL */ 
+        .sidebar { 
+            background-color: var(--bg-sidebar); 
+            color: var(--text-light); 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            padding: 30px 20px; 
+            overflow-y: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        } 
+        .sidebar::-webkit-scrollbar { display: none; }
+
+        .sidebar-brand { 
+            font-size: 22px; 
+            font-weight: 800; 
+            margin-bottom: 35px; 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            letter-spacing: -0.5px; 
+        } 
+        .sidebar-brand span { color: var(--accent-primary); } 
+        .seller-profile-card { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            background: rgba(255,255,255,0.05); 
+            padding: 12px; 
+            border-radius: 10px; 
+            margin-bottom: 25px; 
+        } 
+        .seller-avatar { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--accent-primary); 
+        } 
+        .seller-info-title { 
+            font-size: 13px; 
+            font-weight: 700; 
+            max-width: 140px; 
+            white-space: nowrap; 
+            overflow: hidden; 
+            text-overflow: ellipsis; 
+        } 
+        .seller-info-sub { font-size: 10px; color: var(--text-muted); } 
+        .nav-menu { display: flex; flex-direction: column; gap: 8px; flex-grow: 1; } 
+        .nav-item { 
+            display: flex; 
+            align-items: center; 
+            gap: 12px; 
+            padding: 12px 15px; 
+            border-radius: 8px; 
+            color: #94a3b8; 
+            font-size: 14px; 
+            font-weight: 600; 
+            text-decoration: none; 
+            cursor: pointer; 
+            transition: all 0.2s; 
+        } 
+        .nav-item:hover, .nav-item.active { 
+            color: var(--text-light); 
+            background-color: rgba(255, 255, 255, 0.08); 
+        } 
+        .nav-item.active { 
+            border-left: 4px solid var(--accent-primary); 
+            background-color: rgba(59, 130, 246, 0.15); 
+        } 
+        .sidebar-footer { 
+            border-top: 1px solid rgba(255,255,255,0.08); 
+            padding-top: 20px; 
+            margin-top: 20px;
+        } 
+        .btn-logout { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            color: var(--accent-danger); 
+            cursor: pointer; 
+            font-size: 13px; 
+            font-weight: 700; 
+            background: none; 
+            border: none; 
+            width: 100%; 
+            padding: 10px 15px; 
+            border-radius: 8px; 
+            text-align: left; 
+            transition: 0.2s; 
+        } 
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.1); } 
+        
+        /* COPYRIGHT ADJUSTED UPWARDS */
+        .copyright { 
+            font-size: 9px; 
+            color: #475569; 
+            margin-top: 15px; 
+            margin-bottom: 25px; 
+            text-align: center; 
+        } 
+        
+        /* RIGHT CONTENT CONTAINER WITH SCROLLBAR REMOVED */ 
+        .main-content { 
+            overflow-y: auto; 
+            padding: 40px; 
+            width: 100%; 
+            scrollbar-width: none; 
+            -ms-overflow-style: none; 
+        } 
+        .main-content::-webkit-scrollbar { display: none; }
+
+        .content-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 35px; 
+            border-bottom: 1px solid var(--border-color); 
+            padding-bottom: 20px; 
+        } 
+        .title-area {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        .content-title { font-size: 26px; font-weight: 800; color: var(--text-dark); } 
+        
+        /* PREMIUM HEADER STATUS BADGE */
+        .header-status-badge { 
+            padding: 6px 14px; 
+            border-radius: 30px; 
+            font-weight: 700; 
+            font-size: 11px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            border: 1px solid transparent; 
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        } 
+        
+        /* DYNAMIC WORKSPACE SECTIONS */ 
+        .view-section { display: none; } 
+        .view-section.active { display: block; } 
+        .dashboard-card { 
+            background: var(--bg-card); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 30px; 
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02); 
+        } 
+        /* FORMS */ 
+        .form-grid { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 20px; 
+        } 
+        .input-text { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--bg-main); 
+            border: 1px solid var(--border-color); 
+            border-radius: 8px; 
+            color: var(--text-dark); 
+            font-size: 14px; 
+        } 
+        .input-text:focus { outline: none; border-color: var(--bg-sidebar); background: #fff; } 
+        .btn-submit { 
+            background-color: var(--bg-sidebar); 
+            color: var(--text-light); 
+            border: none; 
+            padding: 12px 24px; 
+            font-weight: 700; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+        } 
+        .btn-submit:hover { background-color: #1e293b; } 
+        
+        /* LISTINGS TABLE */ 
+        .table-responsive {
+            width: 100%;
+            overflow-x: auto;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        }
+        .table-responsive::-webkit-scrollbar { display: none; }
+
+        .listing-table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            font-size: 13px; 
+            margin-top: 15px; 
+            min-width: 600px;
+        } 
+        .listing-table th, .listing-table td { 
+            padding: 12px; 
+            text-align: left; 
+            border-bottom: 1px solid var(--border-color); 
+        } 
+        .listing-table th { background: var(--bg-main); color: var(--text-muted); font-weight: 700; } 
+        .table-thumb { 
+            width: 55px; 
+            height: 42px; 
+            object-fit: cover; 
+            border-radius: 6px; 
+            border: 1px solid var(--border-color);
+        } 
+        
+        /* IMAGE PREVIEW COMPONENT */
+        .preview-thumbs-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+        .uploaded-preview-badge {
+            position: relative;
+            width: 65px;
+            height: 50px;
+            border-radius: 6px;
+            overflow: visible;
+            border: 1px solid var(--border-color);
+        }
+        .uploaded-preview-badge img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+        .uploaded-preview-badge .btn-remove-preview {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--accent-danger);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 16px;
+            height: 16px;
+            font-size: 9px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+        }
+
+        /* ACTIONS BUTTONS */
+        .btn-action-view {
+            background: var(--bg-sidebar);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-action-view:hover {
+            background: var(--accent-primary);
+        }
+        .btn-action-edit {
+            background: var(--accent-warning);
+            color: #000;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-action-edit:hover {
+            opacity: 0.9;
+        }
+        .btn-action-delete {
+            background: var(--accent-danger);
+            color: #fff;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+        .btn-action-delete:hover {
+            background: #b91c1c;
+        }
+
+        /* DOUBLE COLUMN VIEWS WITH SCROLLBAR REMOVED */ 
+        .inbox-split { 
+            display: grid; 
+            grid-template-columns: 280px 1fr; 
+            gap: 20px; 
+            height: 500px; 
+            border: 1px solid var(--border-color); 
+            background: var(--bg-card); 
+            border-radius: 12px; 
+            overflow: hidden; 
+        } 
+        .inbox-list { 
+            border-right: 1px solid var(--border-color); 
+            overflow-y: auto; 
+            background: #fafafa; 
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        } 
+        .inbox-list::-webkit-scrollbar { display: none; }
+
+        .inbox-item { padding: 15px; border-bottom: 1px solid var(--border-color); cursor: pointer; transition: 0.2s; } 
+        .inbox-item:hover, .inbox-item.active { background: #f1f5f9; } 
+        .inbox-item-title { font-weight: 700; font-size: 13px; margin-bottom: 3px; } 
+        .inbox-item-sub { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } 
+        .chat-view { display: flex; flex-direction: column; justify-content: space-between; background: #ffffff; } 
+        .chat-header { padding: 15px 20px; border-bottom: 1px solid var(--border-color); font-weight: 700; background: var(--bg-main); } 
+        
+        .chat-messages-container { 
+            padding: 20px; 
+            overflow-y: auto; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            gap: 15px; 
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+        } 
+        .chat-messages-container::-webkit-scrollbar { display: none; }
+
+        .msg-bubble { max-width: 70%; padding: 12px 15px; border-radius: 12px; font-size: 13px; line-height: 1.4; } 
+        .msg-customer { background: #f1f5f9; align-self: flex-start; color: var(--text-dark); } 
+        .msg-seller { background: var(--bg-sidebar); align-self: flex-end; color: var(--text-light); } 
+        .chat-input-bar { padding: 15px; border-top: 1px solid var(--border-color); display: flex; gap: 10px; } 
+        .mail-row { border-left: 4px solid var(--bg-sidebar); background: #fafafa; padding: 15px; border-radius: 6px; margin-bottom: 15px; } 
+        
+        /* WORKSPACE SETTINGS ENHANCEMENTS */
+        .settings-container { display: flex; gap: 30px; align-items: flex-start; } 
+        .settings-avatar-panel { text-align: center; width: 150px; } 
+        .settings-avatar { 
+            width: 100px; 
+            height: 100px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 3px solid var(--bg-sidebar); 
+            margin-bottom: 12px; 
+        } 
+        
+        /* Password Section Layout */
+        .settings-card-divider {
+            border: 0;
+            border-top: 1px dashed var(--border-color);
+            margin: 30px 0;
+        }
+        .password-section-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .forgot-pass-link {
+            font-size: 11px;
+            color: var(--accent-primary);
+            text-decoration: none;
+            font-weight: 700;
+            cursor: pointer;
+            float: right;
+            margin-top: 5px;
+        }
+        .forgot-pass-link:hover {
+            text-decoration: underline;
+        }
+
+        /* UPLOAD NEW PICTURE BUTTON STYLE */
+        .btn-image-upload {
+            background-color: var(--bg-main);
+            border: 1px dashed var(--border-color);
+            color: var(--text-dark);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-block;
+            transition: 0.2s;
+        }
+        .btn-image-upload:hover {
+            background-color: #e2e8f0;
+            border-color: var(--accent-primary);
+        }
+
+        /* OTP SYSTEM RECOVERY CONTAINER */
+        .otp-recovery-box {
+            display: none;
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+        }
+
+        /* --- CROPPER MODAL STYLE --- */
+        .crop-modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            align-items: center;
+            justify-content: center;
+        }
+        .crop-modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 450px;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+        .crop-modal-actions {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+        }
+
+        @media (max-width: 768px) {
+            #dashboardBox { grid-template-columns: 1fr; }
+            .sidebar { display: none; } 
+            .form-grid { grid-template-columns: 1fr; }
+            .main-content { padding: 20px; }
+            .inbox-split { grid-template-columns: 1fr; }
+            .settings-container { flex-direction: column; align-items: center; }
+            .title-area { flex-direction: column; align-items: flex-start; gap: 5px; }
+        }
+    </style> 
+</head> 
+<body> 
+
+    <!-- 1. PREMIUM LOGIN CARD --> 
+    <div id="loginBox"> 
+        <div class="login-logo"><i class="fa-solid fa-cube"></i> Vortex <span>Merchant</span></div> 
+        <form onsubmit="handleSellerLogin(event)"> 
+            <div class="group"> 
+                <label>Merchant Gateway Email</label> 
+                <input type="email" id="logEmail" placeholder="seller@brand.com" required> 
+            </div> 
+            <div class="group"> 
+                <label>Security Password</label> 
+                <input type="password" id="logPass" placeholder="••••••••••••" required> 
+            </div> 
+            <button type="submit" class="btn-auth">Verify Keys & Enter</button> 
+        </form> 
+    </div> 
+
+    <!-- 2. MAIN SPLIT SCREEN PANEL --> 
+    <div id="dashboardBox"> 
+        <!-- SIDEBAR NAVIGATION PANEL --> 
+        <div class="sidebar"> 
+            <div> 
+                <div class="sidebar-brand"><i class="fa-solid fa-industry"></i> Vortex <span>Space</span></div> 
+                <div class="seller-profile-card"> 
+                    <img id="sidebarAvatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100" class="seller-avatar" alt="Brand Logo"> 
+                    <div> 
+                        <div class="seller-info-title" id="sidebarBrandName">Loading Brand...</div> 
+                        <div class="seller-info-sub" id="sidebarEmail">Loading...</div> 
+                    </div> 
+                </div> 
+                <nav class="nav-menu"> 
+                    <div class="nav-item" id="menu-registerProducts" onclick="switchView('registerProducts', this)"><i class="fa-solid fa-square-plus"></i> Launch Product</div> 
+                    <div class="nav-item" id="menu-alreadyRegistered" onclick="switchView('alreadyRegistered', this)"><i class="fa-solid fa-list-check"></i> Active Inventory</div> 
+                    <div class="nav-item" onclick="switchView('userComplaints', this)"><i class="fa-solid fa-triangle-exclamation"></i> Complaints Box</div> 
+                    <div class="nav-item" onclick="switchView('userChats', this)"><i class="fa-solid fa-comments"></i> Direct Messenger</div> 
+                    <div class="nav-item" onclick="switchView('adminMails', this)"><i class="fa-solid fa-envelope-open-text"></i> Admin Bulletins</div> 
+                    <div class="nav-item active" onclick="switchView('settingsBox', this)"><i class="fa-solid fa-screwdriver-wrench"></i> Workspace Settings</div> 
+                </nav> 
+            </div> 
+            <div class="sidebar-footer"> 
+                <button class="btn-logout" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button> 
+                <div class="copyright">© 2026 Vortex Corp. All Rights Reserved.</div> 
+            </div> 
+        </div> 
+
+        <!-- MAIN CONTENT AREA --> 
+        <div class="main-content"> 
+            <div class="content-header"> 
+                <div class="title-area">
+                    <div class="content-title" id="activeContentTitle">Workspace Settings</div> 
+                    <!-- SLEEK UPPER LEFT CORNER STATUS BADGE -->
+                    <span id="headerStatusBadge" class="header-status-badge"></span>
+                </div>
+                <div style="font-size:12px; color:var(--text-muted); font-weight:600;" id="sessionTime">Session Active: July 2026</div> 
+            </div> 
+            
+            <!-- VIEW 1: REGISTER PRODUCTS --> 
+            <div id="registerProducts" class="view-section"> 
+                <div class="dashboard-card"> 
+                    <h3 id="formSectionHeader" style="margin-bottom: 20px; font-weight:800;">Register New Product Listing</h3> 
+                    <form onsubmit="handleProductUpload(event)"> 
+                        <input type="hidden" id="editProductId" value="">
+
+                        <div class="form-grid"> 
+                            <div class="group"> 
+                                <label>Product Identity Label</label> 
+                                <input type="text" id="pName" class="input-text" placeholder="e.g. Nestle Nido 1+ Nutrition Milk" required> 
+                            </div> 
+                            <div class="group"> 
+                                <label>Discounted Price (PKR) - Sale Price</label> 
+                                <input type="number" id="pPrice" class="input-text" placeholder="e.g. 2559" required> 
+                            </div> 
+                        </div> 
+                        <div class="form-grid"> 
+                            <div class="group"> 
+                                <label>Original Price (PKR) - Before Discount</label> 
+                                <input type="number" id="pOriginalPrice" class="input-text" placeholder="e.g. 2700" required> 
+                            </div> 
+                            <div class="group"> 
+                                <label>Brand Name</label> 
+                                <input type="text" id="pBrand" class="input-text" placeholder="e.g. Nestle Nido" required> 
+                            </div> 
+                        </div> 
+                        <div class="form-grid"> 
+                            <div class="group"> 
+                                <label>SKU (Stock Keeping Unit)</label> 
+                                <input type="text" id="pSKU" class="input-text" placeholder="e.g. 818705885_PK-3737585272" required> 
+                            </div> 
+                            <div class="group"> 
+                                <label>Shipping Fee (PKR)</label> 
+                                <input type="number" id="pShippingFee" class="input-text" placeholder="e.g. 260" required> 
+                            </div> 
+                        </div> 
+                        <div class="form-grid"> 
+                            <div class="group"> 
+                                <label>Main Storage Category</label> 
+                                <select id="pCat" class="input-text" style="height: auto;"> 
+                                    <option value="Electronics">Electronics</option> 
+                                    <option value="Accessories">Accessories</option> 
+                                    <option value="Fashion">Fashion</option> 
+                                    <option value="Beverages">Beverages</option> 
+                                </select> 
+                            </div> 
+                            <div class="group"> 
+                                <label>Upload Product Pictures</label> 
+                                <input type="file" id="pFiles" class="input-text" accept="image/*" multiple onchange="handleFileSelections(this)"> 
+                                <div class="preview-thumbs-container" id="uploadPreviewsArea"></div>
+                            </div> 
+                        </div> 
+                        <div class="form-grid">
+                            <div class="group" style="grid-column: span 2;"> 
+                                <label>What's in the box?</label> 
+                                <input type="text" id="pInBox" class="input-text" placeholder="e.g. Nestle Nido 1+ Toddler Nutrition Milk 990g Promo Pack" required> 
+                            </div> 
+                        </div>
+                        <div class="group"> 
+                            <label>Product Specifications & Features</label> 
+                            <textarea id="pDesc" class="input-text" style="height: 100px; resize: none;" placeholder="Write comprehensive specifications..." required></textarea> 
+                        </div> 
+                        <div style="display: flex; gap: 10px;">
+                            <button type="submit" id="submitProdBtn" class="btn-submit">Publish Live</button> 
+                            <button type="button" id="cancelEditBtn" class="btn-submit" style="background: var(--text-muted); display: none;" onclick="exitEditMode()">Cancel Edit</button>
+                        </div>
+                    </form> 
+                </div> 
+            </div> 
+
+            <!-- VIEW 2: ALREADY REGISTERED LISTING --> 
+            <div id="alreadyRegistered" class="view-section"> 
+                <div class="dashboard-card"> 
+                    <h3 style="margin-bottom: 20px; font-weight:800;">Already Registered Active Listings</h3> 
+                    <div class="table-responsive">
+                        <table class="listing-table"> 
+                            <thead> 
+                                <tr> 
+                                    <th>Listing Cover</th> 
+                                    <th>Identity</th> 
+                                    <th>Category</th> 
+                                    <th>Price (PKR)</th> 
+                                    <th>Status</th> 
+                                    <th>Actions Management</th> 
+                                </tr> 
+                            </thead> 
+                            <tbody id="inventoryList"></tbody> 
+                        </table> 
+                    </div>
+                </div> 
+            </div> 
+
+            <!-- VIEW 3: COMPLAINTS BOX --> 
+            <div id="userComplaints" class="view-section"> 
+                <div class="dashboard-card" style="padding:0; overflow:hidden;"> 
+                    <div class="inbox-split"> 
+                        <div class="inbox-list" id="complaintsSummaryList"></div> 
+                        <div class="chat-view"> 
+                            <div class="chat-header" id="complaintHeader">Select a complaint profile</div> 
+                            <div class="chat-messages-container" id="complaintContent" style="font-size:13px; color:var(--text-muted); padding:20px;"> 
+                                Customer grievances related to products will appear in the pane on the left. Please address complaints swiftly to avoid account freezing. 
+                            </div> 
+                        </div> 
+                    </div> 
+                </div> 
+            </div> 
+
+            <!-- VIEW 4: DIRECT MESSENGER CHAT --> 
+            <div id="userChats" class="view-section"> 
+                <div class="dashboard-card" style="padding:0; overflow:hidden;"> 
+                    <div class="inbox-split"> 
+                        <div class="inbox-list" id="chatUsersList"></div> 
+                        <div class="chat-view"> 
+                            <div class="chat-header" id="activeChatHeader">Select user to begin chatting</div> 
+                            <div class="chat-messages-container" id="chatMessagesBox"></div> 
+                            <div class="chat-input-bar"> 
+                                <input type="text" id="chatInputField" class="input-text" style="flex-grow:1;" placeholder="Type your response here..."> 
+                                <button class="btn-submit" onclick="sendChatResponse()"><i class="fa-solid fa-paper-plane"></i></button> 
+                            </div> 
+                        </div> 
+                    </div> 
+                </div> 
+            </div> 
+
+            <!-- VIEW 5: ADMIN MAILS COMPONENT --> 
+            <div id="adminMails" class="view-section"> 
+                <div class="dashboard-card"> 
+                    <h3 style="margin-bottom: 25px; font-weight:800;">Admin Official Mail Alerts</h3> 
+                    <div id="bulletinsContainer"></div> 
+                </div> 
+            </div> 
+
+            <!-- VIEW 6: WORKSPACE SETTINGS --> 
+            <div id="settingsBox" class="view-section active"> 
+                <div class="dashboard-card"> 
+                    <h3 style="margin-bottom: 25px; font-weight:800;">Configure Identity Profile</h3> 
+                    
+                    <form onsubmit="handleSettingsUpdate(event)"> 
+                        <div class="settings-container"> 
+                            <div class="settings-avatar-panel"> 
+                                <img id="settingsAvatarPreview" src="" class="settings-avatar"> 
+                                <div style="margin-bottom:10px; font-size:11px; color:var(--text-muted);">Brand Logo Preview</div> 
+                                
+                                <!-- File Upload Trigger Button -->
+                                <label for="logoUploadInput" class="btn-image-upload">
+                                    <i class="fa-solid fa-camera"></i> Upload Picture
+                                </label>
+                                <input type="file" id="logoUploadInput" accept="image/*" style="display:none;" onchange="onFileUploadedToCrop(event)">
+                            </div> 
+                            
+                            <div style="flex-grow:1;"> 
+                                <div class="group"> 
+                                    <label>Brand / Store Name (Editable)</label> 
+                                    <input type="text" id="setBrandName" class="input-text" required> 
+                                </div> 
+                                
+                                <div class="form-grid"> 
+                                    <div class="group"> 
+                                        <label>Associated Email Account (Read-Only)</label> 
+                                        <input type="text" id="setReadEmail" class="input-text" readonly style="opacity:0.6; cursor:not-allowed;"> 
+                                    </div> 
+                                    <div class="group"> 
+                                        <label>Owner Personal Name (Editable)</label> 
+                                        <input type="text" id="setOwnerName" class="input-text" placeholder="Owner Name" required> 
+                                    </div> 
+                                </div> 
+                                
+                                <button type="submit" class="btn-submit" style="background-color: var(--accent-success);"><i class="fa-solid fa-circle-check"></i> Commit Updates</button> 
+                            </div> 
+                        </div> 
+                    </form>
+
+                    <!-- PASWORD CONFIGURATION SECTOR -->
+                    <hr class="settings-card-divider">
+                    
+                    <div class="password-section-title">
+                        <i class="fa-solid fa-lock" style="color: var(--accent-primary);"></i> Update System Credentials
+                    </div>
+
+                    <form onsubmit="handlePasswordChange(event)">
+                        <div class="form-grid">
+                            <div class="group">
+                                <label>Current Active Password</label>
+                                <input type="password" id="pOldPass" class="input-text" placeholder="Enter current password">
+                                <a class="forgot-pass-link" onclick="toggleOtpRecovery(true)"><i class="fa-solid fa-circle-info"></i> Forgot Old Password?</a>
+                            </div>
+                            <div class="group">
+                                <label>Real-Time Password Reveal</label>
+                                <input type="text" id="pRevealedPass" class="input-text" readonly style="opacity:0.6; cursor:not-allowed; background: #e2e8f0; font-family: monospace;">
+                            </div>
+                        </div>
+
+                        <!-- Forgot Password System Segment (OTP Validation Drawer) -->
+                        <div class="otp-recovery-box" id="otpBoxContainer">
+                            <h4 style="font-size:13px; font-weight:800; color:var(--accent-blue); margin-bottom:10px;"><i class="fa-solid fa-shield-halved"></i> Security Verification System</h4>
+                            <p style="font-size:12px; color:var(--text-muted); margin-bottom:15px;">We will simulate sending a 6-digit verification security token to your registered email.</p>
+                            
+                            <div class="form-grid" style="align-items: end;">
+                                <div class="group" style="margin-bottom:0;">
+                                    <label>Enter Registered Email to Send Token</label>
+                                    <input type="email" id="otpRequestEmail" class="input-text" placeholder="Enter security email...">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn-submit" style="padding:10px 18px;" onclick="triggerSimulatedOtp()">Send Reset Code</button>
+                                </div>
+                            </div>
+
+                            <!-- Secret Token Code Validation (Unlocked after Sending OTP) -->
+                            <div class="form-grid" id="otpVerificationFields" style="display:none; margin-top:15px; align-items: end;">
+                                <div class="group" style="margin-bottom:0;">
+                                    <label style="color:var(--accent-success);">Verify Code (OTP)</label>
+                                    <input type="text" id="otpEnteredCode" class="input-text" maxlength="6" placeholder="Enter 6-digit code">
+                                </div>
+                                <div>
+                                    <button type="button" class="btn-submit" style="background:var(--accent-success); padding:10px 18px;" onclick="verifySimulatedOtp()">Verify Code</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-grid" style="margin-top:20px;">
+                            <div class="group">
+                                <label>New Security Password</label>
+                                <input type="password" id="pNewPass" class="input-text" placeholder="Create robust password" required>
+                            </div>
+                            <div class="group">
+                                <label>Confirm New Security Password</label>
+                                <input type="password" id="pConfirmPass" class="input-text" placeholder="Repeat robust password" required>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn-submit" style="background-color: var(--bg-sidebar);"><i class="fa-solid fa-key"></i> Update Credentials</button>
+                    </form>
+                </div> 
+            </div> 
+
+        </div> 
+    </div> 
+
+    <!-- 3. CROPPING MODAL WINDOW -->
+    <div class="crop-modal" id="cropperModal">
+        <div class="crop-modal-content">
+            <h3 style="font-weight:800; margin-bottom:15px; font-size:16px;">Adjust & Crop Avatar</h3>
+            <div id="cropperContainer" style="width:100%; height:250px;"></div>
+            <div class="crop-modal-actions">
+                <button class="btn-submit" style="background:var(--text-muted);" onclick="closeCropModal()">Cancel</button>
+                <button class="btn-submit" style="background:var(--accent-success);" onclick="finalizeCropOutput()">Crop & Apply</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Croppie Script Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/croppie/2.6.5/croppie.min.js"></script>
+    <script> 
+        let currentSeller = null; 
+        let activeChatUser = null; 
+        let uploadedImagesBase64 = []; 
+        let croppieInstance = null;
+        let generatedResetOtp = "";
+
+        function handleFileSelections(input) {
+            if (input.files) {
+                const filesArray = Array.from(input.files);
+                let loadedCount = 0;
+                filesArray.forEach(file => {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        uploadedImagesBase64.push(e.target.result);
+                        loadedCount++;
+                        if (loadedCount === filesArray.length) {
+                            renderPreviewThumbs();
+                        }
+                    }
+                    reader.readAsDataURL(file);
+                });
+                input.value = ""; 
+            }
+        }
+
+        function renderPreviewThumbs() {
+            const previewsContainer = document.getElementById("uploadPreviewsArea");
+            previewsContainer.innerHTML = "";
+            uploadedImagesBase64.forEach((base64Data, idx) => {
+                previewsContainer.innerHTML += `
+                    <div class="uploaded-preview-badge">
+                        <img src="${base64Data}">
+                        <button type="button" class="btn-remove-preview" onclick="removeSelectedImage(${idx})">×</button>
+                    </div>
+                `;
+            });
+        }
+
+        function removeSelectedImage(index) {
+            uploadedImagesBase64.splice(index, 1);
+            renderPreviewThumbs();
+        }
+
+        function seedMockTerminalData(sellerEmail) { 
+            let db = JSON.parse(localStorage.getItem("merchantInbox")) || []; 
+            if (db.filter(m => m.receiver === sellerEmail).length === 0) { 
+                db.push( 
+                    { receiver: sellerEmail, sender: "Vortex Security", type: "system", content: "Your payment verification has been cleared. Terminal operates in optimal limits.", date: "07/15/2026, 11:00 AM" }, 
+                    { receiver: sellerEmail, sender: "Vortex Compliance", type: "system", content: "Action Alert: High complaint rate on delayed logistics. Please ensure items are dispatched under 24 hours.", date: "07/14/2026, 09:00 AM" } 
+                ); 
+                localStorage.setItem("merchantInbox", JSON.stringify(db)); 
+            } 
+            let complaints = JSON.parse(localStorage.getItem("complaintsDatabase")) || []; 
+            if (complaints.filter(c => c.sellerEmail === sellerEmail).length === 0) { 
+                complaints.push( 
+                    { id: 101, sellerEmail: sellerEmail, user: "Asim Riaz", product: "Wireless Mouse X", text: "Product arrived in working condition but has some scratches on the plastic material.", date: "07/13/2026" }, 
+                    { id: 102, sellerEmail: sellerEmail, user: "Zara Khan", product: "Custom Deskmat", text: "Stitching issues at the lower edge. Print color gradient is slightly different than shown.", date: "07/12/2026" } 
+                ); 
+                localStorage.setItem("complaintsDatabase", JSON.stringify(complaints)); 
+            } 
+            let chats = JSON.parse(localStorage.getItem("conversationsDatabase")) || []; 
+            if (chats.filter(c => c.sellerEmail === sellerEmail).length === 0) { 
+                chats.push( 
+                    { sellerEmail: sellerEmail, user: "Kashif Ali", sender: "customer", text: "Assalam-o-Alaikum! Is this item available in stock right now?", time: "11:02 AM" }, 
+                    { sellerEmail: sellerEmail, user: "Kashif Ali", sender: "seller", text: "Walaikum Assalam! Yes, we have limited stock available for instant shipping.", time: "11:05 AM" }, 
+                    { sellerEmail: sellerEmail, user: "Maria Butt", sender: "customer", text: "Hey, do you ship to Lahore? When can I expect delivery?", time: "Yesterday" }
+                ); 
+                localStorage.setItem("conversationsDatabase", JSON.stringify(chats)); 
+            } 
+        } 
+
+        function handleSellerLogin(e) { 
+            e.preventDefault(); 
+            const email = document.getElementById("logEmail").value.trim(); 
+            const pass = document.getElementById("logPass").value.trim(); 
+            const db = JSON.parse(localStorage.getItem("usersDatabase")) || []; 
+            const target = db.find(u => u.email === email && u.role === 'owner'); 
+            
+            if (!target || target.status === 'removed') { 
+                alert("❌ Authentication Failure: This account does not exist / has been terminated."); 
+                return; 
+            } 
+            if (target.password !== pass) { 
+                alert("❌ Verification Error: Password keys failed."); 
+                return; 
+            } 
+            currentSeller = target; 
+            seedMockTerminalData(email); 
+            document.getElementById("loginBox").style.display = "none"; 
+            document.getElementById("dashboardBox").style.display = "grid"; 
+            updateProfileLayoutDetails(); 
+            checkRestrictions(target); 
+            loadInventory(); 
+            loadComplaints(); 
+            loadChats(); 
+            loadAdminBulletins(); 
+        } 
+
+        function updateProfileLayoutDetails() { 
+            const avatarUrl = currentSeller.screenshot || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100"; 
+            document.getElementById("sidebarAvatar").src = avatarUrl; 
+            document.getElementById("sidebarBrandName").textContent = currentSeller.brandName; 
+            document.getElementById("sidebarEmail").textContent = currentSeller.email; 
+            document.getElementById("settingsAvatarPreview").src = avatarUrl; 
+            document.getElementById("setBrandName").value = currentSeller.brandName; 
+            document.getElementById("setReadEmail").value = currentSeller.email; 
+            document.getElementById("setOwnerName").value = currentSeller.ownerName || ""; 
+            document.getElementById("pRevealedPass").value = currentSeller.password;
+        } 
+
+        function checkRestrictions(seller) { 
+            const badge = document.getElementById("headerStatusBadge"); 
+            const upBtn = document.getElementById("submitProdBtn"); 
+            const upZone = document.getElementById("registerProducts"); 
+            
+            if (seller.status === 'pending') { 
+                badge.style.backgroundColor = "rgba(245, 158, 11, 0.1)"; 
+                badge.style.color = "var(--accent-warning)"; 
+                badge.style.borderColor = "var(--accent-warning)"; 
+                badge.innerHTML = "<i class='fa-solid fa-hourglass-half'></i> Pending"; 
+                upBtn.disabled = true; 
+                upZone.style.opacity = "0.4"; 
+            } else if (seller.status === 'freezed') { 
+                badge.style.backgroundColor = "rgba(239, 68, 68, 0.1)"; 
+                badge.style.color = "var(--accent-danger)"; 
+                badge.style.borderColor = "var(--accent-danger)"; 
+                badge.innerHTML = "<i class='fa-solid fa-snowflake'></i> Freezed"; 
+                upBtn.disabled = true; 
+                upZone.style.opacity = "0.4"; 
+            } else if (seller.status === 'blocked') { 
+                badge.style.backgroundColor = "rgba(234, 88, 12, 0.1)"; 
+                badge.style.color = "#ea580c"; 
+                badge.style.borderColor = "#ea580c"; 
+                badge.innerHTML = "<i class='fa-solid fa-ban'></i> Blocked"; 
+                upBtn.disabled = true; 
+                upZone.style.opacity = "0.4"; 
+            } else { 
+                badge.style.backgroundColor = "rgba(16, 185, 129, 0.1)"; 
+                badge.style.color = "var(--accent-success)"; 
+                badge.style.borderColor = "var(--accent-success)"; 
+                badge.innerHTML = "<i class='fa-solid fa-circle-check'></i> Active"; 
+                upBtn.disabled = false; 
+                upZone.style.opacity = "1"; 
+            } 
+        } 
+
+        function switchView(viewId, element) { 
+            document.querySelectorAll(".view-section").forEach(sec => sec.classList.remove("active")); 
+            document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active")); 
+            document.getElementById(viewId).classList.add("active"); 
+            element.classList.add("active"); 
+            let text = element.innerText.trim(); 
+            document.getElementById("activeContentTitle").textContent = text; 
+        } 
+
+        function handleProductUpload(e) { 
+            e.preventDefault(); 
+            if (currentSeller.status !== 'approved') { 
+                alert("❌ Action Terminated: Terminal restrictions are active."); 
+                return; 
+            } 
+            if (uploadedImagesBase64.length === 0) {
+                alert("❌ Please upload at least 1 image for your product.");
+                return;
+            }
+            
+            let products = JSON.parse(localStorage.getItem("realProductsDb")) || []; 
+            const editId = document.getElementById("editProductId").value;
+
+            if (editId) {
+                const prodIndex = products.findIndex(p => p.id === parseInt(editId));
+                if (prodIndex !== -1) {
+                    products[prodIndex].name = document.getElementById("pName").value.trim();
+                    products[prodIndex].price = parseFloat(document.getElementById("pPrice").value);
+                    products[prodIndex].originalPrice = parseFloat(document.getElementById("pOriginalPrice").value) || parseFloat(document.getElementById("pPrice").value);
+                    products[prodIndex].brand = document.getElementById("pBrand").value.trim();
+                    products[prodIndex].sku = document.getElementById("pSKU").value.trim();
+                    products[prodIndex].shippingFee = parseFloat(document.getElementById("pShippingFee").value) || 0;
+                    products[prodIndex].category = document.getElementById("pCat").value;
+                    products[prodIndex].images = uploadedImagesBase64; 
+                    products[prodIndex].inBox = document.getElementById("pInBox").value.trim();
+                    products[prodIndex].desc = document.getElementById("pDesc").value.trim();
+                    alert("🎉 Product successfully updated!");
+                }
+            } else {
+                products.push({ 
+                    id: Date.now(), 
+                    name: document.getElementById("pName").value.trim(), 
+                    price: parseFloat(document.getElementById("pPrice").value), 
+                    originalPrice: parseFloat(document.getElementById("pOriginalPrice").value) || parseFloat(document.getElementById("pPrice").value),
+                    brand: document.getElementById("pBrand").value.trim(),
+                    sku: document.getElementById("pSKU").value.trim(),
+                    shippingFee: parseFloat(document.getElementById("pShippingFee").value) || 0,
+                    category: document.getElementById("pCat").value, 
+                    images: uploadedImagesBase64, 
+                    inBox: document.getElementById("pInBox").value.trim(),
+                    desc: document.getElementById("pDesc").value.trim(), 
+                    owner: currentSeller.brandName, 
+                    sellerEmail: currentSeller.email 
+                }); 
+                alert("🎉 Product successfully published live!"); 
+            }
+            
+            localStorage.setItem("realProductsDb", JSON.stringify(products)); 
+            exitEditMode(); 
+            loadInventory(); 
+            switchView('alreadyRegistered', document.getElementById("menu-alreadyRegistered")); 
+        } 
+
+        function initiateProductEdit(productId) {
+            const products = JSON.parse(localStorage.getItem("realProductsDb")) || [];
+            const target = products.find(p => p.id === productId);
+            if (!target) return;
+
+            document.getElementById("editProductId").value = target.id;
+            document.getElementById("pName").value = target.name;
+            document.getElementById("pPrice").value = target.price;
+            document.getElementById("pOriginalPrice").value = target.originalPrice || target.price;
+            document.getElementById("pBrand").value = target.brand || "";
+            document.getElementById("pSKU").value = target.sku || "";
+            document.getElementById("pShippingFee").value = target.shippingFee || 0;
+            document.getElementById("pCat").value = target.category;
+            document.getElementById("pInBox").value = target.inBox || "";
+            document.getElementById("pDesc").value = target.desc;
+            
+            uploadedImagesBase64 = [...(target.images || [])];
+            renderPreviewThumbs();
+
+            document.getElementById("formSectionHeader").textContent = "Edit Product Listing";
+            document.getElementById("submitProdBtn").textContent = "Update Product";
+            document.getElementById("cancelEditBtn").style.display = "inline-block";
+
+            switchView('registerProducts', document.getElementById("menu-registerProducts"));
+        }
+
+        function exitEditMode() {
+            document.getElementById("editProductId").value = "";
+            document.getElementById("pName").value = ""; 
+            document.getElementById("pPrice").value = ""; 
+            document.getElementById("pOriginalPrice").value = "";
+            document.getElementById("pBrand").value = "";
+            document.getElementById("pSKU").value = "";
+            document.getElementById("pShippingFee").value = "";
+            document.getElementById("pInBox").value = "";
+            document.getElementById("pDesc").value = ""; 
+            document.getElementById("uploadPreviewsArea").innerHTML = "";
+            uploadedImagesBase64 = [];
+
+            document.getElementById("formSectionHeader").textContent = "Register New Product Listing";
+            document.getElementById("submitProdBtn").textContent = "Publish Live";
+            document.getElementById("cancelEditBtn").style.display = "none";
+        }
+
+        function triggerProductDeletion(productId) {
+            if (!confirm("⚠️ Are you sure you want to permanently delete this product?")) return;
+            let products = JSON.parse(localStorage.getItem("realProductsDb")) || [];
+            products = products.filter(p => p.id !== productId);
+            localStorage.setItem("realProductsDb", JSON.stringify(products));
+            alert("🗑️ Product removed successfully.");
+            loadInventory();
+        }
+
+        function loadInventory() { 
+            const tableBody = document.getElementById("inventoryList"); 
+            const products = JSON.parse(localStorage.getItem("realProductsDb")) || []; 
+            const myItems = products.filter(p => p.sellerEmail === currentSeller.email); 
+            tableBody.innerHTML = ""; 
+            
+            if (myItems.length === 0) { 
+                tableBody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-muted);">No active inventory listings registered.</td></tr>`; 
+                return; 
+            } 
+            myItems.forEach(item => { 
+                let statusBadge = currentSeller.status === 'blocked' ? 
+                    '<span class="badge" style="color:var(--accent-danger)">Blocked</span>' : 
+                    '<span class="badge" style="color:var(--accent-success)">Live</span>'; 
+                
+                const coverImage = (item.images && item.images.length > 0) ? item.images[0] : 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=100';
+                
+                tableBody.innerHTML += ` 
+                    <tr> 
+                        <td><img src="${coverImage}" class="table-thumb"></td> 
+                        <td><strong>${item.name}</strong><br><small style="color:var(--text-muted);">${item.id}</small></td> 
+                        <td>${item.category}</td> 
+                        <td>Rs. ${item.price}</td> 
+                        <td>${statusBadge}</td> 
+                        <td>
+                            <div style="display:flex; gap: 5px; flex-wrap:wrap;">
+                                <button class="btn-action-view" onclick="previewOnWebsite(${item.id})">
+                                    <i class="fa-solid fa-eye"></i> View
+                                </button>
+                                <button class="btn-action-edit" onclick="initiateProductEdit(${item.id})">
+                                    <i class="fa-solid fa-pen"></i> Edit
+                                </button>
+                                <button class="btn-action-delete" onclick="triggerProductDeletion(${item.id})">
+                                    <i class="fa-solid fa-trash"></i> Delete
+                                </button>
+                            </div>
+                        </td> 
+                    </tr> 
+                `; 
+            }); 
+        } 
+
+        function previewOnWebsite(productId) {
+            sessionStorage.setItem("previewProductId", productId);
+            window.open("index.html", "_blank");
+        }
+
+        function loadComplaints() { 
+            const list = document.getElementById("complaintsSummaryList"); 
+            const complaints = JSON.parse(localStorage.getItem("complaintsDatabase")) || []; 
+            const myComplaints = complaints.filter(c => c.sellerEmail === currentSeller.email); 
+            list.innerHTML = ""; 
+            if (myComplaints.length === 0) { 
+                list.innerHTML = `<p style="padding:20px; font-size:12px; color:var(--text-muted); text-align:center;">Inbox is clear.</p>`; 
+                return; 
+            } 
+            myComplaints.forEach((c, idx) => { 
+                list.innerHTML += ` 
+                    <div class="inbox-item" onclick="openComplaint(${idx})"> 
+                        <div class="inbox-item-title">${c.user}</div> 
+                        <div class="inbox-item-sub">Item: ${c.product}</div> 
+                    </div> 
+                `; 
+            }); 
+        } 
+
+        function openComplaint(index) { 
+            const complaints = JSON.parse(localStorage.getItem("complaintsDatabase")) || []; 
+            const myComplaints = complaints.filter(c => c.sellerEmail === currentSeller.email); 
+            const target = myComplaints[index]; 
+            document.querySelectorAll("#complaintsSummaryList .inbox-item").forEach((el, idx) => { 
+                el.classList.toggle("active", idx === index); 
+            }); 
+            document.getElementById("complaintHeader").textContent = `Complaint Profile: ${target.user}`; 
+            document.getElementById("complaintContent").innerHTML = ` 
+                <div style="font-size:13px; color:var(--text-dark);"> 
+                    <div style="margin-bottom:12px;"><strong>Filing Customer:</strong> ${target.user}</div> 
+                    <div style="margin-bottom:12px;"><strong>Product Involved:</strong> ${target.product}</div> 
+                    <div style="margin-bottom:12px;"><strong>Filing Date:</strong> ${target.date}</div> 
+                    <hr style="border:0; border-top:1px solid var(--border-color); margin:15px 0;"> 
+                    <div style="background:#f8fafc; padding:15px; border-radius:6px; border-left:4px solid var(--accent-danger); font-style:italic;"> 
+                        "${target.text}" 
+                    </div> 
+                </div> 
+            `; 
+        } 
+
+        function loadChats() { 
+            const list = document.getElementById("chatUsersList"); 
+            const chats = JSON.parse(localStorage.getItem("conversationsDatabase")) || []; 
+            const myChats = chats.filter(c => c.sellerEmail === currentSeller.email); 
+            const uniqueUsers = [...new Set(myChats.map(c => c.user))]; 
+            list.innerHTML = ""; 
+            if (uniqueUsers.length === 0) { 
+                list.innerHTML = `<p style="padding:20px; font-size:12px; color:var(--text-muted); text-align:center;">No active chats found.</p>`; 
+                return; 
+            } 
+            uniqueUsers.forEach(user => { 
+                const userThread = myChats.filter(c => c.user === user); 
+                const lastMsg = userThread[userThread.length - 1]; 
+                list.innerHTML += ` 
+                    <div class="inbox-item" onclick="openChat('${user}')" id="chatUser-${user.replace(/\s+/g, '')}"> 
+                        <div class="inbox-item-title">${user}</div> 
+                        <div class="inbox-item-sub">${lastMsg.sender === 'seller' ? 'You: ' : ''}${lastMsg.text}</div> 
+                    </div> 
+                `; 
+            }); 
+        } 
+
+        function openChat(username) { 
+            activeChatUser = username; 
+            document.getElementById("activeChatHeader").textContent = `Direct Message: ${username}`; 
+            document.querySelectorAll("#chatUsersList .inbox-item").forEach(el => el.classList.remove("active")); 
+            const targetEl = document.getElementById(`chatUser-${username.replace(/\s+/g, '')}`); 
+            if (targetEl) targetEl.classList.add("active"); 
+            renderChatMessages(); 
+        } 
+
+        function renderChatMessages() { 
+            const box = document.getElementById("chatMessagesBox"); 
+            const chats = JSON.parse(localStorage.getItem("conversationsDatabase")) || []; 
+            const thread = chats.filter(c => c.sellerEmail === currentSeller.email && c.user === activeChatUser); 
+            box.innerHTML = ""; 
+            thread.forEach(m => { 
+                let senderClass = m.sender === 'seller' ? 'msg-seller' : 'msg-customer'; 
+                box.innerHTML += ` 
+                    <div class="msg-bubble ${senderClass}"> 
+                        ${m.text} 
+                        <div style="font-size:9px; opacity:0.7; text-align:right; margin-top:5px;">${m.time || ''}</div> 
+                    </div> 
+                `; 
+            }); 
+            box.scrollTop = box.scrollHeight; 
+        } 
+
+        function sendChatResponse() { 
+            const input = document.getElementById("chatInputField"); 
+            const text = input.value.trim(); 
+            if (!text || !activeChatUser) return; 
+            let chats = JSON.parse(localStorage.getItem("conversationsDatabase")) || []; 
+            chats.push({ 
+                sellerEmail: currentSeller.email, 
+                user: activeChatUser, 
+                sender: "seller", 
+                text: text, 
+                time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) 
+            }); 
+            localStorage.setItem("conversationsDatabase", JSON.stringify(chats)); 
+            input.value = ""; 
+            renderChatMessages(); 
+            loadChats(); 
+        } 
+
+        function loadAdminBulletins() { 
+            const container = document.getElementById("bulletinsContainer"); 
+            const inbox = JSON.parse(localStorage.getItem("merchantInbox")) || []; 
+            const myMails = inbox.filter(m => m.receiver === currentSeller.email && m.type === 'system'); 
+            container.innerHTML = ""; 
+            if (myMails.length === 0) { 
+                container.innerHTML = `<p style="font-size:12px; color:var(--text-muted); text-align:center;">No official alerts.</p>`; 
+                return; 
+            } 
+            myMails.forEach(mail => { 
+                container.innerHTML += ` 
+                    <div class="mail-row"> 
+                        <div style="display:flex; justify-content:space-between; font-size:11px; color:var(--text-muted); margin-bottom:8px;"> 
+                            <strong>Sender: ${mail.sender}</strong> 
+                            <span>${mail.date}</span> 
+                        </div> 
+                        <div style="font-size:13px; color:var(--text-dark); font-weight:600;">${mail.content}</div> 
+                    </div> 
+                `; 
+            }); 
+        } 
+
+        /* --- UPDATED: PROFILE SETTINGS SYNCHRONIZE --- */
+        function handleSettingsUpdate(e) { 
+            e.preventDefault(); 
+            const newBrandName = document.getElementById("setBrandName").value.trim(); 
+            const newOwnerName = document.getElementById("setOwnerName").value.trim(); 
+            const currentAvatarSrc = document.getElementById("settingsAvatarPreview").src;
+
+            let usersDb = JSON.parse(localStorage.getItem("usersDatabase")) || []; 
+            usersDb = usersDb.map(u => { 
+                if (u.email === currentSeller.email) { 
+                    u.brandName = newBrandName; 
+                    u.ownerName = newOwnerName;
+                    u.screenshot = currentAvatarSrc; // Saved cropped base64 string
+                } 
+                return u; 
+            }); 
+            localStorage.setItem("usersDatabase", JSON.stringify(usersDb)); 
+            
+            currentSeller.brandName = newBrandName; 
+            currentSeller.ownerName = newOwnerName;
+            currentSeller.screenshot = currentAvatarSrc; 
+            
+            updateProfileLayoutDetails(); 
+            alert("✅ Profile details committed and updated successfully!"); 
+        } 
+
+        /* --- NEW: INTERACTIVE IMAGE FILE UPLOAD AND CROPPER --- */
+        function onFileUploadedToCrop(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    openCropModal(e.target.result);
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function openCropModal(imageSrc) {
+            document.getElementById("cropperModal").style.display = "flex";
+            const cropContainer = document.getElementById("cropperContainer");
+            cropContainer.innerHTML = ""; // Reset internal HTML structure before initialization
+            
+            croppieInstance = new Croppie(cropContainer, {
+                viewport: { width: 150, height: 150, type: 'circle' },
+                boundary: { width: 250, height: 250 },
+                showZoomer: true
+            });
+            croppieInstance.bind({ url: imageSrc });
+        }
+
+        function closeCropModal() {
+            if (croppieInstance) {
+                croppieInstance.destroy();
+                croppieInstance = null;
+            }
+            document.getElementById("cropperModal").style.display = "none";
+            document.getElementById("logoUploadInput").value = "";
+        }
+
+        function finalizeCropOutput() {
+            if (croppieInstance) {
+                croppieInstance.result({
+                    type: 'base64',
+                    size: 'viewport',
+                    circle: true
+                }).then(function(base64Image) {
+                    document.getElementById("settingsAvatarPreview").src = base64Image;
+                    closeCropModal();
+                });
+            }
+        }
+
+        /* --- NEW: CREDENTIALS MANAGEMENT AND OTP VERIFICATION --- */
+        function handlePasswordChange(e) {
+            e.preventDefault();
+            const oldPassInput = document.getElementById("pOldPass").value;
+            const newPass = document.getElementById("pNewPass").value;
+            const confirmPass = document.getElementById("pConfirmPass").value;
+
+            // Password matching verification
+            if (newPass !== confirmPass) {
+                alert("❌ Validation Error: New password and confirmation do not match!");
+                return;
+            }
+
+            // Normal Flow: Checking old password validation directly
+            if (oldPassInput !== currentSeller.password) {
+                alert("❌ Authentication Error: The old security password you entered is incorrect.");
+                return;
+            }
+
+            commitNewPasswordToDatabase(newPass);
+        }
+
+        function commitNewPasswordToDatabase(newPassword) {
+            let usersDb = JSON.parse(localStorage.getItem("usersDatabase")) || []; 
+            usersDb = usersDb.map(u => { 
+                if (u.email === currentSeller.email) { 
+                    u.password = newPassword; 
+                } 
+                return u; 
+            }); 
+            localStorage.setItem("usersDatabase", JSON.stringify(usersDb));
+            currentSeller.password = newPassword;
+
+            document.getElementById("pOldPass").value = "";
+            document.getElementById("pNewPass").value = "";
+            document.getElementById("pConfirmPass").value = "";
+            document.getElementById("pRevealedPass").value = newPassword;
+            
+            toggleOtpRecovery(false);
+            alert("🔐 Security settings successfully updated! New credentials saved.");
+        }
+
+        function toggleOtpRecovery(show) {
+            const container = document.getElementById("otpBoxContainer");
+            container.style.display = show ? "block" : "none";
+            if (!show) {
+                document.getElementById("otpVerificationFields").style.display = "none";
+                document.getElementById("otpRequestEmail").value = "";
+                document.getElementById("otpEnteredCode").value = "";
+            }
+        }
+
+        // SIMULATED SYSTEM MAILING ENGINE
+        function triggerSimulatedOtp() {
+            const emailInput = document.getElementById("otpRequestEmail").value.trim();
+            if (emailInput.toLowerCase() !== currentSeller.email.toLowerCase()) {
+                alert("❌ Validation Error: Entered email address does not match your account email!");
+                return;
+            }
+
+            // Generate Random 6-Digit Simulated Verification Token Code
+            generatedResetOtp = Math.floor(100000 + Math.random() * 900000).toString();
+            
+            // Trigger UI OTP verification field to slide in
+            document.getElementById("otpVerificationFields").style.display = "grid";
+            
+            alert(`📨 Real-Time Verification Triggered!\nAn authentication code [ ${generatedResetOtp} ] has been simulated and broadcasted directly for your identity verification.`);
+        }
+
+        function verifySimulatedOtp() {
+            const userEnteredOtp = document.getElementById("otpEnteredCode").value.trim();
+            if (userEnteredOtp === generatedResetOtp && generatedResetOtp !== "") {
+                const recoveryPassword = prompt("🗝️ Identity Verified Successfully!\nPlease enter your desired new security password directly below:");
+                if (recoveryPassword && recoveryPassword.trim().length >= 4) {
+                    commitNewPasswordToDatabase(recoveryPassword.trim());
+                } else {
+                    alert("❌ Validation Cancelled: Password must contain at least 4 characters.");
+                }
+            } else {
+                alert("❌ Verification Failed: The OTP token is incorrect or expired.");
+            }
+        }
+    </script> 
+</body> 
+</html>

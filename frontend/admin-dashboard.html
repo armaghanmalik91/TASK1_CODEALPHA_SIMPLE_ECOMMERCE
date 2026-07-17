@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vortex Control Center | Admin Deck</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-main: #f8fafc;        /* Soft White */
+            --bg-sidebar: #0f172a;     /* Deep Navy Blue / Black */
+            --bg-card: #ffffff;        /* Pure White */
+            --text-dark: #0f172a;      /* Dark Black */
+            --text-muted: #64748b;     /* Slate Gray */
+            --border-color: #e2e8f0;   /* Light Gray Border */
+            --accent-primary: #1e3a8a; /* Deep Navy Accent */
+            --accent-blue: #3b82f6;    /* Bright Blue Accent */
+            --accent-success: #10b981; /* Premium Emerald */
+            --accent-danger: #ef4444;  /* Crimson Red */
+            --accent-warning: #f59e0b; /* Amber Alert */
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-dark);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* --- AUTH SECTION --- */
+        #adminAuth {
+            margin: auto;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(15, 23, 42, 0.08);
+        }
+        .auth-logo {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--bg-sidebar);
+            margin-bottom: 25px;
+            letter-spacing: -0.5px;
+        }
+        .auth-logo span { color: var(--accent-blue); }
+        .group { margin-bottom: 20px; }
+        .group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; }
+        .group input, .group textarea, .group select {
+            width: 100%; padding: 12px; background: #f1f5f9; border: 1px solid var(--border-color);
+            border-radius: 8px; color: var(--text-dark); font-size: 14px; transition: 0.3s;
+        }
+        .group input:focus, .group textarea:focus, .group select:focus { outline: none; border-color: var(--accent-primary); background: #fff; }
+        .btn-auth {
+            width: 100%; padding: 14px; background: var(--bg-sidebar); color: #fff; border: none;
+            border-radius: 8px; font-weight: 700; cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .btn-auth:hover { background: #1e293b; }
+
+        /* --- MOBILE TOP BAR --- */
+        .mobile-header {
+            display: none;
+            background: var(--bg-sidebar);
+            color: #fff;
+            padding: 15px 20px;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .mobile-menu-btn {
+            background: none;
+            border: none;
+            color: #fff;
+            font-size: 22px;
+            cursor: pointer;
+        }
+
+        /* --- CORE DASHBOARD LAYOUT --- */
+        #adminDeck {
+            display: none;
+            width: 100%;
+            height: 100vh;
+            grid-template-columns: 260px 1fr;
+        }
+
+        /* SIDEBAR PANEL */
+        .sidebar {
+            background-color: var(--bg-sidebar);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 30px 20px;
+            z-index: 99;
+            transition: transform 0.3s ease-in-out;
+        }
+        .sidebar-brand {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 35px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            letter-spacing: -0.5px;
+        }
+        .sidebar-brand span { color: var(--accent-blue); }
+        
+        .admin-badge-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: rgba(255,255,255,0.05);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+        }
+        .admin-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent-primary);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-size: 18px;
+            border: 2px solid var(--accent-blue);
+        }
+
+        .nav-menu {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-grow: 1;
+        }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            color: #94a3b8;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-item:hover, .nav-item.active {
+            color: #fff;
+            background-color: rgba(255, 255, 255, 0.08);
+        }
+        .nav-item.active {
+            border-left: 4px solid var(--accent-blue);
+            background-color: rgba(59, 130, 246, 0.15);
+        }
+
+        .sidebar-footer {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding-top: 20px;
+        }
+        .btn-logout {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--accent-danger);
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 700;
+            background: none;
+            border: none;
+            width: 100%;
+            padding: 10px 15px;
+            border-radius: 8px;
+            text-align: left;
+            transition: 0.2s;
+        }
+        .btn-logout:hover { background: rgba(239, 68, 68, 0.1); }
+        .copyright {
+            font-size: 9px;
+            color: #475569;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* MAIN CONTENT AREA */
+        .main-content {
+            overflow-y: auto;
+            padding: 40px;
+        }
+        .content-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 35px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+        }
+        .content-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        /* STATS COUNTERS GRID */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .stat-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+        }
+        .stat-val { font-size: 24px; font-weight: 800; color: var(--text-dark); margin-top: 5px; }
+        .stat-icon { font-size: 28px; color: var(--accent-primary); opacity: 0.2; }
+
+        /* VIEW CARD SYSTEM */
+        .view-section { display: none; }
+        .view-section.active { display: block; }
+        
+        .dashboard-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.02);
+            margin-bottom: 25px;
+        }
+
+        /* RESPONSIVE TABLES */
+        .table-container {
+            width: 100%;
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin-top: 15px;
+        }
+        .custom-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            min-width: 600px; /* Forces scrolling on tiny screens instead of squeezing */
+        }
+        .custom-table th, .custom-table td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .custom-table th { background: var(--bg-main); color: var(--text-muted); font-weight: 700; }
+        
+        /* OVERRIDE BUTTONS */
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            cursor: pointer;
+            color: #fff;
+            margin-right: 4px;
+            margin-bottom: 4px;
+            transition: 0.2s;
+        }
+        .action-btn:hover { opacity: 0.85; }
+
+        /* RECEIPT PREVIEW IMAGE */
+        .thumb {
+            width: 50px;
+            height: 38px;
+            object-fit: cover;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+        }
+
+        /* STATUS BADGES */
+        .badge {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            display: inline-block;
+        }
+        .badge-pending { background: rgba(245, 158, 11, 0.1); color: var(--accent-warning); }
+        .badge-approved { background: rgba(16, 185, 129, 0.1); color: var(--accent-success); }
+        .badge-freezed { background: rgba(239, 68, 68, 0.1); color: var(--accent-danger); }
+        .badge-blocked { background: rgba(234, 88, 12, 0.1); color: #ea580c; }
+
+        /* BROADCAST SPLIT SCREEN */
+        .grid-split {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 25px;
+        }
+        @media (max-width: 768px) {
+            .grid-split { grid-template-columns: 1fr; }
+        }
+
+        /* ZOOM PREVIEW SCREEN */
+        .zoom-modal {
+            display:none;
+            position:fixed;
+            top:0; left:0;
+            width:100%; height:100%;
+            background:rgba(15, 23, 42, 0.95);
+            justify-content:center;
+            align-items:center;
+            z-index:999;
+        }
+        .zoom-modal img { max-width:85%; max-height:80%; border-radius:12px; border: 3px solid #fff; }
+
+        /* --- MOBILE MEDIA QUERIES --- */
+        @media (max-width: 768px) {
+            .mobile-header { display: flex; }
+            #adminDeck {
+                grid-template-columns: 1fr;
+                height: calc(100vh - 54px);
+            }
+            .sidebar {
+                position: fixed;
+                top: 54px;
+                left: 0;
+                bottom: 0;
+                width: 260px;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+            .main-content {
+                padding: 20px;
+            }
+            .content-header {
+                margin-bottom: 20px;
+                padding-bottom: 10px;
+            }
+            .content-title { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- MOBILE TOP HEADER (Active below 768px) -->
+    <div class="mobile-header">
+        <div style="font-weight: 800; font-size: 18px;"><i class="fa-solid fa-cube"></i> Vortex <span>Admin</span></div>
+        <button class="mobile-menu-btn" onclick="toggleMobileSidebar()"><i class="fa-solid fa-bars"></i></button>
+    </div>
+
+    <!-- 1. LOGIN AUTHORIZATION GATE -->
+    <div id="adminAuth">
+        <div class="auth-logo"><i class="fa-solid fa-shield-halved"></i> Vortex <span>Admin</span></div>
+        <div class="group">
+            <label>Master Security Pass Key</label>
+            <center><input type="password" id="admKey" placeholder="••••••••••••"></center>
+        </div>
+        <button onclick="loginAdmin()" class="btn-auth">Verify Master Decryption Key</button>
+    </div>
+
+    <!-- 2. CORE OPERATIONS DECK -->
+    <div id="adminDeck">
+        
+        <!-- SIDEBAR CONTROLLER -->
+        <div class="sidebar" id="sidebarMenu">
+            <div>
+                <div class="sidebar-brand"><i class="fa-solid fa-shield-halved"></i> Vortex <span>Admin</span></div>
+                
+                <div class="admin-badge-card">
+                    <div class="admin-avatar"><i class="fa-solid fa-user-shield"></i></div>
+                    <div>
+                        <div style="font-size: 13px; font-weight: 700;">Vortex Admin</div>
+                        <div style="font-size: 10px; color: var(--text-muted);">Admin Node-01</div>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs opposite to Seller options -->
+                <nav class="nav-menu">
+                    <div class="nav-item active" onclick="switchView('verifyMerchants', this)"><i class="fa-solid fa-id-card-clip"></i> Verification Queue</div>
+                    <div class="nav-item" onclick="switchView('manageMerchants', this)"><i class="fa-solid fa-users-gear"></i> Merchant Directory</div>
+                    <div class="nav-item" onclick="switchView('manageComplaints', this)"><i class="fa-solid fa-file-shield"></i> System Complaints</div>
+                    <div class="nav-item" onclick="switchView('broadcastMails', this)"><i class="fa-solid fa-bullhorn"></i> Send Bulletins</div>
+                </nav>
+            </div>
+
+            <div class="sidebar-footer">
+                <button class="btn-logout" onclick="location.reload()"><i class="fa-solid fa-power-off"></i> Logout</button>
+                <div class="copyright">© 2026 Vortex Inc. Admin Console.</div>
+            </div>
+        </div>
+
+        <!-- MAIN DYNAMIC CONTENT WORKSPACE -->
+        <div class="main-content">
+            <div class="content-header">
+                <div class="content-title" id="activeContentTitle">Verification Queue</div>
+                <div style="font-size:12px; color:var(--text-muted); font-weight:600;">System Online: July 2026</div>
+            </div>
+
+            <!-- STATISTICS CARDS -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size:11px; color:var(--text-muted); font-weight:700;">TOTAL SELLERS</div>
+                        <div class="stat-val" id="statTotalSellers">0</div>
+                    </div>
+                    <i class="fa-solid fa-shop stat-icon"></i>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size:11px; color:var(--text-muted); font-weight:700;">PENDING REQUESTS</div>
+                        <div class="stat-val" id="statPendingSellers" style="color:var(--accent-warning);">0</div>
+                    </div>
+                    <i class="fa-solid fa-hourglass-start stat-icon"></i>
+                </div>
+                <div class="stat-card">
+                    <div>
+                        <div style="font-size:11px; color:var(--text-muted); font-weight:700;">ACTIVE PRODUCTS</div>
+                        <div class="stat-val" id="statTotalProducts" style="color:var(--accent-success);">0</div>
+                    </div>
+                    <i class="fa-solid fa-cubes stat-icon"></i>
+                </div>
+            </div>
+
+            <!-- VIEW 1: VERIFY PENDING MERCHANTS -->
+            <div id="verifyMerchants" class="view-section active">
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px; font-weight:800;"><i class="fa-solid fa-hourglass-start" style="color: var(--accent-warning);"></i> Pending Fee Verifications</h3>
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Brand Details</th>
+                                    <th>Contact Email</th>
+                                    <th>Fee Receipt</th>
+                                    <th>Actions Gate</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 2: MANAGE REGISTERED MERCHANTS -->
+            <div id="manageMerchants" class="view-section">
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px; font-weight:800;"><i class="fa-solid fa-address-book" style="color: var(--accent-primary);"></i> Master Merchant Directory</h3>
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Brand Identity</th>
+                                    <th>Registered Email</th>
+                                    <th>Current Status</th>
+                                    <th>Override Directives</th>
+                                </tr>
+                            </thead>
+                            <tbody id="aTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: GLOBAL SYSTEM COMPLAINTS -->
+            <div id="manageComplaints" class="view-section">
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px; font-weight:800;"><i class="fa-solid fa-circle-exclamation" style="color: var(--accent-danger);"></i> Global User Grievances</h3>
+                    <div class="table-container">
+                        <table class="custom-table">
+                            <thead>
+                                <tr>
+                                    <th>Filer / User</th>
+                                    <th>Accused Merchant (Email)</th>
+                                    <th>Target Product</th>
+                                    <th>Grievance Statement</th>
+                                    <th>Rapid Response Overrides</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: SEND BULLETINS & BROADCAST CENTER -->
+            <div id="broadcastMails" class="view-section">
+                <div class="dashboard-card">
+                    <h3 style="margin-bottom: 20px; font-weight:800;"><i class="fa-solid fa-paper-plane" style="color: var(--accent-blue);"></i> Send Official Admin Bulletins</h3>
+                    <div class="grid-split">
+                        
+                        <!-- Bulletin Form -->
+                        <form onsubmit="handleSendBulletin(event)">
+                            <div class="group">
+                                <label>Target Merchant Receiver</label>
+                                <select id="bReceiver" required>
+                                    <option value="">-- Choose Merchant --</option>
+                                </select>
+                            </div>
+                            <div class="group">
+                                <label>Official Bulletin Statement</label>
+                                <textarea id="bMessage" rows="5" placeholder="Write the compliance decree or notification here..." required></textarea>
+                            </div>
+                            <button type="submit" class="btn-auth" style="background: var(--accent-primary);"><i class="fa-solid fa-circle-arrow-right"></i> Broadcast Bulletin</button>
+                        </form>
+
+                        <!-- Informational Guidelines Panel -->
+                        <div style="background: var(--bg-main); padding:20px; border-radius:10px; border: 1px solid var(--border-color); font-size:13px; line-height:1.5;">
+                            <h4 style="margin-bottom:10px; color: var(--accent-primary);"><i class="fa-solid fa-circle-info"></i> Broadcast Integrity Protocol</h4>
+                            <p style="margin-bottom:10px; color:var(--text-muted);">This secure engine pushes official system directives straight to the merchant's **Dashboard Message Center** instantly.</p>
+                            <p style="color:var(--text-muted); font-weight:600;">Use bulletins to:</p>
+                            <ul style="margin-left: 15px; margin-top: 5px; color: var(--text-muted);">
+                                <li>Issue Warning alerts regarding customer complaints.</li>
+                                <li>Announce downtime, maintenance, or platform commissions.</li>
+                                <li>Instruct frozen merchants on verification procedures.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- RECEIPT PREVIEW LIGHTBOX -->
+    <div id="zoomModal" class="zoom-modal" onclick="this.style.display='none'"><img id="zoomImg" alt="Payment Receipt Screenshot Preview"></div>
+
+    <script>
+        // ==========================================
+        // SYSTEM CONTROLLERS & MASTER KEY
+        // ==========================================
+        function loginAdmin() {
+            if(document.getElementById("admKey").value === 'admin123') {
+                document.getElementById("adminAuth").style.display = "none";
+                document.getElementById("adminDeck").style.display = "grid";
+                initConsoleData();
+            } else {
+                alert("❌ Verification Error: Master keys failed.");
+            }
+        }
+
+        // Initialize and recalculate platform statistics
+        function initConsoleData() {
+            renderTables();
+            calculatePlatformStats();
+            populateMerchantSelector();
+        }
+
+        // Toggle mobile drawer navigation menu
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById("sidebarMenu");
+            sidebar.classList.toggle("open");
+        }
+
+        // Dynamic Switch View Panel
+        function switchView(viewId, element) {
+            document.querySelectorAll(".view-section").forEach(sec => sec.classList.remove("active"));
+            document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+
+            document.getElementById(viewId).classList.add("active");
+            element.classList.add("active");
+
+            // Close sidebar automatically on mobile screens after selecting a view
+            const sidebar = document.getElementById("sidebarMenu");
+            sidebar.classList.remove("open");
+
+            // Capitalize view header
+            document.getElementById("activeContentTitle").textContent = element.innerText.trim();
+        }
+
+        // ==========================================
+        // STATS CALCULATOR
+        // ==========================================
+        function calculatePlatformStats() {
+            let db = JSON.parse(localStorage.getItem("usersDatabase")) || [];
+            let products = JSON.parse(localStorage.getItem("realProductsDb")) || [];
+
+            let totalSellers = db.filter(u => u.role === 'owner' && u.status !== 'removed').length;
+            let pendingSellers = db.filter(u => u.role === 'owner' && u.status === 'pending').length;
+            let totalProducts = products.length;
+
+            document.getElementById("statTotalSellers").textContent = totalSellers;
+            document.getElementById("statPendingSellers").textContent = pendingSellers;
+            document.getElementById("statTotalProducts").textContent = totalProducts;
+        }
+
+        // ==========================================
+        // SYSTEM OVERRIDES DIRECTIVES & STATUSES
+        // ==========================================
+        function renderTables() {
+            let db = JSON.parse(localStorage.getItem("usersDatabase")) || [];
+            let complaints = JSON.parse(localStorage.getItem("complaintsDatabase")) || [];
+
+            const pTable = document.getElementById("pTable");
+            const aTable = document.getElementById("aTable");
+            const cTable = document.getElementById("cTable");
+
+            pTable.innerHTML = ""; 
+            aTable.innerHTML = "";
+            cTable.innerHTML = "";
+
+            let pendings = db.filter(u => u.role === 'owner' && u.status === 'pending');
+            let actives = db.filter(u => u.role === 'owner' && u.status !== 'pending' && u.status !== 'removed');
+
+            // 1. Pending Approvals Queue
+            if(pendings.length === 0) {
+                pTable.innerHTML = "<tr><td colspan='4' style='text-align:center; color:var(--text-muted); padding:20px;'>Verification queue is fully cleared.</td></tr>";
+            } else {
+                pendings.forEach(s => {
+                    pTable.innerHTML += `<tr>
+                        <td><strong>${s.brandName}</strong><br><small style="color:var(--text-muted);">${s.ownerName}</small></td>
+                        <td>${s.email}</td>
+                        <td><img src="${s.screenshot || 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=100'}" class="thumb" onclick="zoom('${s.screenshot || 'https://images.unsplash.com/photo-1554415707-6e8cfc93fe23?w=100'}')"></td>
+                        <td>
+                            <button class="action-btn" style="background:var(--accent-success)" onclick="setStatus('${s.email}','approved')"><i class="fa-solid fa-check"></i> Approve</button>
+                            <button class="action-btn" style="background:var(--accent-danger)" onclick="setStatus('${s.email}','removed')"><i class="fa-solid fa-trash"></i> Reject</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            // 2. Active Directory
+            if(actives.length === 0) {
+                aTable.innerHTML = "<tr><td colspan='4' style='text-align:center; color:var(--text-muted); padding:20px;'>No registered merchants in directory.</td></tr>";
+            } else {
+                actives.forEach(s => {
+                    aTable.innerHTML += `<tr>
+                        <td><strong>${s.brandName}</strong></td>
+                        <td>${s.email}</td>
+                        <td><span class="badge badge-${s.status}">${s.status.toUpperCase()}</span></td>
+                        <td>
+                            <button class="action-btn" style="background:var(--accent-warning); color:#000;" onclick="setStatus('${s.email}','freezed')"><i class="fa-solid fa-snowflake"></i> Freeze</button>
+                            <button class="action-btn" style="background:#ea580c" onclick="setStatus('${s.email}','blocked')"><i class="fa-solid fa-ban"></i> Block</button>
+                            <button class="action-btn" style="background:var(--accent-blue)" onclick="setStatus('${s.email}','approved')"><i class="fa-solid fa-circle-check"></i> Activate</button>
+                            <button class="action-btn" style="background:var(--accent-danger)" onclick="setStatus('${s.email}','removed')"><i class="fa-solid fa-trash"></i> Terminate</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+
+            // 3. User Complaints Master view
+            if(complaints.length === 0) {
+                cTable.innerHTML = "<tr><td colspan='5' style='text-align:center; color:var(--text-muted); padding:20px;'>Clean sheet! No customer complaints filed.</td></tr>";
+            } else {
+                complaints.forEach(c => {
+                    cTable.innerHTML += `<tr>
+                        <td><strong>${c.user}</strong><br><small style="color:var(--text-muted);">${c.date || '07/2026'}</small></td>
+                        <td>${c.sellerEmail}</td>
+                        <td>${c.product}</td>
+                        <td style="color:var(--text-muted); font-style:italic; max-width:250px;">"${c.text}"</td>
+                        <td>
+                            <button class="action-btn" style="background:var(--accent-warning); color:#000;" onclick="setStatus('${c.sellerEmail}','freezed')"><i class="fa-solid fa-snowflake"></i> Freeze Seller</button>
+                            <button class="action-btn" style="background:#ea580c" onclick="setStatus('${c.sellerEmail}','blocked')"><i class="fa-solid fa-ban"></i> Block Seller</button>
+                        </td>
+                    </tr>`;
+                });
+            }
+        }
+
+        // Set status
+        function setStatus(email, status) {
+            let db = JSON.parse(localStorage.getItem("usersDatabase")) || [];
+            db = db.map(u => { if(u.email === email) u.status = status; return u; });
+            localStorage.setItem("usersDatabase", JSON.stringify(db));
+            
+            // Broadcast matching alert directly to merchant panel inbox history
+            injectBulletinsMessage(email, `System Warning Order: Admin set terminal state profile override to status: [${status.toUpperCase()}]`);
+
+            alert("System status successfully changed to: " + status.toUpperCase());
+            initConsoleData();
+        }
+
+        function zoom(src) { 
+            document.getElementById("zoomImg").src = src; 
+            document.getElementById("zoomModal").style.display = "flex"; 
+        }
+
+        // ==========================================
+        // DYNAMIC BULLETINS / BROADCAST SERVICES
+        // ==========================================
+        function populateMerchantSelector() {
+            const selector = document.getElementById("bReceiver");
+            let db = JSON.parse(localStorage.getItem("usersDatabase")) || [];
+            let activeMerchants = db.filter(u => u.role === 'owner' && u.status !== 'removed');
+
+            selector.innerHTML = `<option value="">-- Choose Merchant --</option>`;
+            activeMerchants.forEach(m => {
+                selector.innerHTML += `<option value="${m.email}">${m.brandName} (${m.email})</option>`;
+            });
+        }
+
+        function handleSendBulletin(e) {
+            e.preventDefault();
+            const receiverEmail = document.getElementById("bReceiver").value;
+            const text = document.getElementById("bMessage").value.trim();
+
+            if(!receiverEmail || !text) return;
+
+            injectBulletinsMessage(receiverEmail, text);
+            alert("📩 Official system bulletin dispatched to: " + receiverEmail);
+            document.getElementById("bMessage").value = "";
+        }
+
+        function injectBulletinsMessage(email, text) {
+            let inbox = JSON.parse(localStorage.getItem("merchantInbox")) || [];
+            inbox.unshift({
+                receiver: email,
+                sender: "Vortex Administration",
+                type: "system",
+                content: text,
+                date: new Date().toLocaleString()
+            });
+            localStorage.setItem("merchantInbox", JSON.stringify(inbox));
+        }
+    </script>
+</body>
+</html>
